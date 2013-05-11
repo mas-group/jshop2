@@ -1,0 +1,4 @@
+(defproblem problem propagation
+  ()
+  ((second my_input1 my_input2))
+)

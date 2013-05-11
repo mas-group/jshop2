@@ -1,0 +1,203 @@
+(defdomain freecell
+  (
+  ; The problem has three degrees of freedom: How many freecells are available,
+  ; how many cards are there, and how many columns of cards we have.
+  ;
+  ; State of the world is determined by these atoms:
+  ; (on ?s1 ?n1 ?s2 ?n2) : Card (?s1 ?n1) is on top of card (?s2 ?n2).
+  ; (in-cell ?s ?n) : Card (?s ?n) is in a freecell.
+  ; (empty-cols ?c) : ?c columns are empty.
+  ; (empty-cells ?c) : ?c freecells are available.
+  ; (done ?s ?n) : The last card in suit ?s we are done with is card (?s ?n).
+
+  ; ---------------------- Operators ----------------------
+    ; A bookkeeping operator, just to initialize the (done ?s ?n) predicate.
+    (:operator (!!done)
+               ()
+               ()
+               ((done s 0) (done h 0) (done d 0) (done c 0)) 0)
+
+    ; Move (?s1 ?n1) which is on top of (?s2 ?n2) onto top of (?s3 ?n3).
+    ; ?s2 or ?s3 can be nil exclusively.
+    (:operator (!move ?s1 ?n1 ?s3 ?n3)
+               ; Precondition
+               ((on ?s1 ?n1 ?s2 ?n2) (empty-cols ?c1))
+               ; Delete list
+               ((on ?s1 ?n1 ?s2 ?n2) (empty-cols ?c1)
+                (forall (?s4 ?n4) (forbidden ?s4 ?n4 ?s1 ?n1)
+                  ((forbidden ?s4 ?n4 ?s1 ?n1))))
+               ; Add list
+               ((on ?s1 ?n1 ?s3 ?n3) (forbidden ?s1 ?n1 ?s2 ?n2)
+                (empty-cols (call + ?c1
+                                    (call CheckNull ?s2 1)
+                                    (call CheckNull ?s3 -1)))))
+
+    ; Free (?s1 ?n1) which is on top of (?s2 ?n2).
+    ; ?s2 can be nil.
+    (:operator (!free ?s1 ?n1)
+               ; Precondition
+               ((empty-cells ?cell1) (on ?s1 ?n1 ?s2 ?n2) (empty-cols ?col1))
+               ; Delete list
+               ((on ?s1 ?n1 ?s2 ?n2) (empty-cells ?cell1) (empty-cols ?col1)
+                (forall (?s3 ?n3) (forbidden ?s3 ?n3 ?s1 ?n1)
+                  ((forbidden ?s3 ?n3 ?s1 ?n1))))
+               ; Add list
+               ((in-cell ?s1 ?n1) (forbidden ?s1 ?n1 ?s2 ?n2)
+                (empty-cells (call - ?cell1 1))
+                (empty-cols (call + ?col1 (call CheckNull ?s2 1)))))
+
+    ; Move (?s1 ?n1) from a cell onto top of (?s2 ?n2).
+    ; ?s2 can be nil.
+    (:operator (!unfree ?s1 ?n1 ?s2 ?n2)
+               ; Precondition
+               ((empty-cells ?cell1) (empty-cols ?col1))
+               ; Delete list
+               ((in-cell ?s1 ?n1) (empty-cells ?cell1) (empty-cols ?col1))
+               ; Add list
+               ((on ?s1 ?n1 ?s2 ?n2) (forbidden dummy dummy ?s1 ?n1)
+                (empty-cells (call + ?cell1 1))
+                (empty-cols (call + ?col1 (call CheckNull ?s2 -1)))))
+
+    ; Finish (?s1 ?n1) which is on top of (?s2 ?n2).
+    ; ?s2 can be nil.
+    (:operator (!finish ?s1 ?n1)
+               ; Precondition
+               ((on ?s1 ?n1 ?s2 ?n2) (empty-cols ?col1))
+               ; Delete list
+               ((on ?s1 ?n1 ?s2 ?n2) (done ?s1 (call - ?n1 1))
+                (empty-cols ?col1)
+                (forall (?x ?y ?z ?t) (forbidden ?x ?y ?z ?t)
+                  ((forbidden ?x ?y ?z ?t))))
+               ; Add list
+               ((done ?s1 ?n1) (empty-cols (call + ?col1
+                                                   (call CheckNull ?s2 1)))))
+
+    ; Finish (?s1 ?n1) from a freecell.
+    (:operator (!finish-from-cell ?s1 ?n1)
+               ; Precondition
+               ((empty-cells ?c1))
+               ; Delete list
+               ((in-cell ?s1 ?n1) (done ?s1 (call - ?n1 1)) (empty-cells ?c1)
+                (forall (?x ?y ?z ?t) (forbidden ?x ?y ?z ?t)
+                  ((forbidden ?x ?y ?z ?t))))
+               ; Add list
+               ((done ?s1 ?n1) (empty-cells (call + ?c1 1))))
+
+  ; ----------------------- Methods -----------------------
+
+    ; Get (?s1 ?n1) out of the way by finishing it.
+    (:method (bottom-out-of-the-way ?s1 ?n1)
+             bottom-out-of-the-way-finish
+             ((done ?s1 ?n2) (call = (call + ?n2 1) ?n1))
+             ((!finish ?s1 ?n1)))
+
+    ; Get (?s1 ?n1) out of the way by moving it to another column.
+    (:method (bottom-out-of-the-way ?s1 ?n1)
+             bottom-out-of-the-way-move
+             ((movable ?s1 ?n1 ?s2 ?n2))
+             ((!move ?s1 ?n1 ?s2 ?n2)))
+
+    ; Get (?s1 ?n1) out of the way by moving it to an empty column.
+    (:method (bottom-out-of-the-way ?s1 ?n1)
+             bottom-out-of-the-way-col
+             ((not (forbidden ?s1 ?n1 nil nil)) (empty-cols ?c) (call > ?c 0))
+             ((!move ?s1 ?n1 nil nil)))
+
+    ; Get (?s1 ?n1) out of the way by moving it to a freecell.
+    (:method (bottom-out-of-the-way ?s1 ?n1)
+             bottom-out-of-the-way-cell
+             ((not (forbidden dummy dummy ?s1 ?n1)) (empty-cells ?c)
+              (call > ?c 0))
+             ((!free ?s1 ?n1)))
+
+    ; Try to get (?s1 ?n1) out of the way by finishing another card.
+    (:method (bottom-out-of-the-way ?s1 ?n1)
+             bottom-out-of-the-way-other-finish
+             ((done ?s2 ?n3) (call = (call + ?n3 1) ?n2)
+              (not (on ?s4 ?n4 ?s2 ?n2)))
+             ((!finish ?s2 ?n2)
+              (:immediate bottom-out-of-the-way ?s1 ?n1)))
+
+    ; Try to get (?s1 ?n1) out of the way by finishing another card in a
+    ; freecell.
+    (:method (bottom-out-of-the-way ?s1 ?n1)
+             bottom-out-of-the-way-other-finish-cell
+             ((in-cell ?s2 ?n2) (done ?s2 ?n3) (call = (call + ?n3 1) ?n2))
+             ((!finish-from-cell ?s2 ?n2)
+              (:immediate bottom-out-of-the-way ?s1 ?n1)))
+
+    ; Try to get (?s1 ?n1) out of the way by moving another card in a freecell
+    ; onto top of a column.
+    (:method (bottom-out-of-the-way ?s1 ?n1)
+             bottom-out-of-the-way-other-unfree
+             ((in-cell ?s2 ?n2) (movable ?s2 ?n2 ?s3 ?n3)
+              (call != (?s3 ?n3) (?s1 ?n1)))
+             ((!unfree ?s2 ?n2 ?s3 ?n3)
+              (:immediate bottom-out-of-the-way ?s1 ?n1)))
+
+    ; Try to get (?s1 ?n1) out of the way by moving another crad in a freecell
+    ; to an empty column.
+    (:method (bottom-out-of-the-way ?s1 ?n1)
+             bottom-out-of-the-way-other-unfree-col
+             ((in-cell ?s2 ?n2) (not (forbidden ?s2 ?n2 nil nil))
+              (empty-cols ?c) (call > ?c 0))
+             ((!unfree ?s2 ?n2 nil nil)
+              (:immediate bottom-out-of-the-way ?s1 ?n1)))
+
+    ; Get (?s1 ?n1) out of the way of (?s2 ?n2).
+    (:method (out-of-the-way ?s1 ?n1 ?s2 ?n2)
+             ; If it is already got out of the way, do nothing.
+             (not (on-top ?s1 ?n1 ?s2 ?n2))
+             nil
+
+             ; First get rid of the other cards in the way.
+             (on ?s3 ?n3 ?s1 ?n1)
+             ((out-of-the-way ?s3 ?n3 ?s1 ?n1)
+              (:immediate out-of-the-way ?s1 ?n1 ?s2 ?n2))
+
+             ; If it is the bottom card, get it out of the way directly.
+             nil
+             ((bottom-out-of-the-way ?s1 ?n1)))
+
+    ; Top-layer task: Finish (?s1 ?n1).
+    (:method (do-card ?s1 ?n1)
+             ; Do nothing if it is already finished.
+             ((done ?s1 ?n2) (call <= ?n1 ?n2))
+             nil
+
+             ; Finish it if it is in a freecell.
+             (in-cell ?s1 ?n1)
+             ((!finish-from-cell ?s1 ?n1))
+
+             ; If there are other cards in the way, get rid of them.
+             (on ?s2 ?n2 ?s1 ?n1)
+             ((out-of-the-way ?s2 ?n2 ?s1 ?n1) (:immediate !finish ?s1 ?n1))
+
+             ; If it is in the bottom of a column, finish it.
+             nil
+             ((!finish ?s1 ?n1)))
+
+  ; ------------------------ Axioms -----------------------
+    ; Different colors
+    (:- (diff-clr s h) nil)
+    (:- (diff-clr s d) nil)
+
+    (:- (diff-clr h s) nil)
+    (:- (diff-clr h c) nil)
+
+    (:- (diff-clr d s) nil)
+    (:- (diff-clr d c) nil)
+
+    (:- (diff-clr c h) nil)
+    (:- (diff-clr c d) nil)
+
+    ; Can (?s1 ?n1) be moved onto top of (?s2 ?n2)?
+    (:- (movable ?s1 ?n1 ?s2 ?n2)
+        ((assign ?n2 (call + ?n1 1)) (diff-clr ?s1 ?s2) (on ?s2 ?n2 ?s3 ?n3)
+         (not (on ?s4 ?n4 ?s2 ?n2)) (not (forbidden ?s1 ?n1 ?s2 ?n2))))
+
+    ; Is (?s1 ?n1), directly or indirectly, on top of (?s2 ?n2)?
+    (:- (on-top ?s1 ?n1 ?s2 ?n2)
+        (on ?s1 ?n1 ?s2 ?n2)
+        ((on ?s1 ?n1 ?s3 ?n3) (on-top ?s3 ?n3 ?s2 ?n2)))
+))

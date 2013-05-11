@@ -1,0 +1,38 @@
+; This extremely simple example shows how to use forall constructs both in
+; logical expressions and operator delete/add lists. Note the similar syntax
+; and the different semantics of these two very different usages of the forall
+; keyword.
+
+(defdomain forallexample (
+  ; To load a package ?z in a truck ?t
+  (:operator (!load ?z ?t) () () ((in ?z ?t)))
+
+  ; To move a truck ?t from city ?x to city ?y
+  (:operator (!drive ?t ?x ?y)
+    ()
+    ; The packages in the car move with it from city ?x to city ?y too, hence
+    ; the following add and delete list using forall keyword.
+    ((truck-at ?t ?x) (forall (?z) ((package ?z) (in ?z ?t)) ((at ?z ?x))))
+    ((truck-at ?t ?y) (forall (?z) ((package ?z) (in ?z ?t)) ((at ?z ?y))))
+  )
+
+  ; The top-layer method to move packages from city ?x to city ?y.
+  (:method (move-packages ?x ?y)
+    ((truck ?t) (truck-at ?t ?x))
+    ((load-packages ?x ?t) (!drive ?t ?x ?y)))
+
+  ; To verify if all the packages are loaded, and if not load them. Note that
+  ; this method can be implemented much easier and more efficiently without
+  ; using the forall keyword. The use of forall here is just to show how it is
+  ; used and does not necessarily reflect the best way to implement this
+  ; or similar methods.
+  (:method (load-packages ?x ?t)
+    ; Are all the packages loaded?
+    (forall (?z) ((package ?z) (at ?z ?x)) (in ?z ?t))
+    nil
+
+    ; If not, choose a package, load it, and recursively call the same method.
+    ((package ?z) (at ?z ?x) (not (in ?z ?t)))
+    ((!load ?z ?t) (load-packages ?x ?t)))
+  )
+)

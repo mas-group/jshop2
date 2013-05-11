@@ -1,0 +1,22 @@
+(defproblem problem madrts
+;;;************* Problem #0 *************************
+	(
+		(m_Unit 0)
+		(m_Unit 1)
+		(m_Unit 2)
+ 		(m_PlayerID 0 1)
+ 		(m_PlayerID 1 1)
+ 		(m_PlayerID 2 1)
+;;;		(m_UnitTypeIndex 0 ???)
+;;;		(m_UnitTypeIndex 1 ???)
+;;;		(m_UnitTypeIndex 2 ???)
+		(m_Loc 0 0.5 0.5 0)
+		(m_Loc 1 0.5 0.5 0)
+		(m_Loc 2 0.5 0.5 0)
+
+		(goal (m_Loc 0 0.1 0.1 0) 
+		      (m_Loc 1 0.1 0.1 0) 
+		      (m_Loc 2 0.1 0.1 0) )
+	)
+	((transport (0 1 2) 0.1 0.1))
+)

@@ -1,0 +1,6 @@
+(defproblem problem forallexample
+  ((truck t1) (truck t2) (package p1) (package p2) (package p3) (package p4)
+   (truck-at t1 city1) (truck-at t2 city2) (at p1 city2) (at p2 city1)
+   (at p3 city2) (at p4 city2) (in p3 t2))
+
+  ((move-packages city2 city1)))

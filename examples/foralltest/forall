@@ -1,0 +1,15 @@
+; This extremely simple example shows some of the most essential
+; features of SHOP2.
+
+(defdomain foralltest (
+  (:operator (!do-something)
+    ()
+    ()
+    ()
+  )
+  (:method (succeed)
+    ((forall (?v) ((p ?v)) ((q ?v) (q ?v) (not (w ?v)))))
+    ((!do-something))
+  )
+ )
+)

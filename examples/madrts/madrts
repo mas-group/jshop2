@@ -1,0 +1,42 @@
+(defdomain madrts
+ (
+  ;;;;;;;;; TIELT ACTION MESSAGE SPECIFICATIONS ;;;;;;;;;;;;;;;
+  ;;; Note: The ones that were highlighted for the challenge problems in the 
+  ;;; MADRTS document and that are related to the kind of tasks we mentioned in 
+  ;;; our scenario specifications.
+;;(!!remove ((m_Loc ?unitID ?xorigin ?yorigin))) 
+;;
+  (:method (move (?unitID) ?xtarget ?ytarget)
+    ((m_Loc ?unitID ?xorigin ?yorigin 0))
+    ((!ACT_MOVE (?unitID) ?xtarget ?ytarget)))
+     
+  ;;; MOVE 
+  (:method (move (?unitID . ?unitIDs) ?xtarget ?ytarget)
+    ((m_Unit ?unitID) (m_PlayerID ?unitID 1)
+     (m_Loc ?unitID ?xorigin ?yorigin 0))
+    ((!ACT_MOVE (?unitID) ?xtarget ?ytarget)
+     (move ?unitIDs ?xtarget ?ytarget)))
+
+    ;;unitIDs is a list of unit IDs
+  (:operator (!ACT_MOVE (?unitID) ?x ?y) 
+    ((m_Loc ?unitID ?xorigin ?yorigin 0))
+    ((m_Loc ?unitID ?xorigin ?yorigin 0))
+    ((m_Loc ?unitID ?x ?y 0)))
+
+
+  ;;;;;;;;;;;;;; HIGH-LEVEL METHODS ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+  ;;; TRANSPORT A UNIT
+  ;;;
+  ;;; have resources
+  (:method (transport ?unitIDs ?xtarget ?ytarget)
+    ()
+    ((move ?unitIDs ?xtarget ?ytarget)))
+    
+;  ;;; does not have resources
+;  (:method (transport ?unit ?loc2)
+;    ()
+;    ((acquire-resource fuel) (transport-unit ?unit ?loc2)))
+
+
+));;; END DOMAIN

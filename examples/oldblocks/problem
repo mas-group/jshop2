@@ -1,0 +1,16 @@
+(defproblem problem oldblocks
+ (
+  (on-table b1) (on b2 b1) (on b7 b2) (clear b7)
+  (on-table b3) (on b4 b3) (on b10 b4) (clear b10)
+  (on-table b5) (on b6 b5) (clear b6)
+  (on-table b8) (clear b8)
+  (on-table b9) (clear b9)
+ )
+ ((achieve-goals (
+  (on-table b1) (on b10 b1) (clear b10)
+  (on-table b2) (on b3 b2) (on b4 b3) (on b5 b4) (clear b5)
+  (on-table b6) (on b7 b6) (on b8 b7) (clear b8)
+  (on-table b9) (clear b9)
+  ))
+ )
+)

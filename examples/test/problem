@@ -1,0 +1,8 @@
+(defproblem problem test
+  ((a obj1) (b obj1 obj2 obj3) (c obj1 obj2 obj4) (q obj4 obj5) (r obj4 6)
+   (q obj4 obj7) (r obj4 5) (q obj4 obj8) (r obj4 2) (ttt uuu) (v obj1)
+   (v obj5) (t 3) (t 2) (t 13) (t 25) (t 1.5) (t 18)
+  )
+
+  ((m1 (obj2 ttt uuu)))
+)

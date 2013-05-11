@@ -1,0 +1,27 @@
+(defdomain propagation
+  (
+    (:operator (!consumer1 ?a)
+      ()
+      ()
+      ())
+
+    (:operator (!consumer2 ?a)
+      ()
+      ()
+      ())
+
+    (:operator (!producer ?in ?out)
+      ((assign ?out my_output))
+      ()
+      ())
+
+    (:method (first ?in ?out)
+      ()
+      ((!producer ?in ?out) (!consumer1 ?out)))
+
+    (:method (second ?in1 ?in2)
+      ()
+      ((first ?in1 ?out) (first ?in2 ?out2) (!consumer2 ?out))
+    )
+  )
+)
