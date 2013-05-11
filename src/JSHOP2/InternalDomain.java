@@ -37,19 +37,19 @@ public class InternalDomain
   /** A <code>Vector</code> of <code>String</code> names of compound tasks seen
    *  so far in the domain.
   */
-  private Vector<String> compoundTasks;
+  protected Vector<String> compoundTasks;
 
   /** A <code>Vector</code> of <code>String</code> names of constant symbols
    *  seen so far in the domain.
   */
-  private Vector<String> constants;
+  protected Vector<String> constants;
 
   /** The number of constant symbols already seen in the planning domain. Any
    *  number of constant symbols in the planning problem more than this
    *  indicates presence of constant symbols that appear exclusively in the
    *  problem description.
   */
-  private int constantsSize;
+  protected int constantsSize;
 
   /** The new line character in the platform JSHOP2 is running on.
   */
@@ -62,7 +62,7 @@ public class InternalDomain
 
   /** The <code>String</code> name of the domain.
   */
-  private String name;
+  protected String name;
 
   /** A <code>Vector</code> of operators seen so far in the domain description.
    *  Each member is of type <code>InternalOperator</code>.
@@ -71,16 +71,16 @@ public class InternalDomain
 
   /** The parser object that will parse this domain.
   */
-  private JSHOP2Parser parser;
+  protected JSHOP2Parser parser;
 
   /** A <code>Vector</code> of <code>String</code> names of primitive tasks
    *  seen so far in the domain.
   */
-  private Vector<String> primitiveTasks;
+  protected Vector<String> primitiveTasks;
 
   /** The <code>String</code> name of the planning problem.
   */
-  private String probName;
+  protected String probName;
 
   /** To initialize this domain.
    *
