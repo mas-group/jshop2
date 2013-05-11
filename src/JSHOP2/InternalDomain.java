@@ -7,6 +7,7 @@ import java.io.FileInputStream;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.LinkedList;
 import java.util.Vector;
 
@@ -84,14 +85,14 @@ public class InternalDomain
 
   /** To initialize this domain.
    *
-   *  @param fin
-   *          the file from which the domain description is to be read.
+   *  @param inputStream
+   *          the stream from which the domain description is to be read.
    *  @param planNoIn
    *          the number of solution plans per planning problem that the user
    *          has requested from this object.
    *  @throws IOException
   */
-  public InternalDomain(File fin, int planNoIn) throws IOException
+  public InternalDomain(InputStream inputStream, int planNoIn) throws IOException
   {
     planNo = planNoIn;
 
@@ -108,7 +109,7 @@ public class InternalDomain
     operators = new Vector<InternalOperator>();
 
     //-- Initialize the lexer and the parser associated with this object.
-    JSHOP2Lexer lexer = new JSHOP2Lexer(new FileInputStream(fin));
+    JSHOP2Lexer lexer = new JSHOP2Lexer(inputStream);
     parser = new JSHOP2Parser(lexer);
     parser.initialize(lexer, this);
 
@@ -776,10 +777,10 @@ public class InternalDomain
 
     //-- If this is a planning problem, call the 'command' rule in the parser.
     if (args.length == 2)
-      (new InternalDomain(new File(args[1]), planNo)).parser.command();
+      (new InternalDomain(new FileInputStream(new File(args[1])), planNo)).parser.command();
     //-- If this is a planning domain, call the 'domain' rule in the parser.
     else
-      (new InternalDomain(new File(args[0]), -1)).parser.domain();
+      (new InternalDomain(new FileInputStream(new File(args[0])), -1)).parser.domain();
   }
 
   /** This function reads a <code>Vector</code> of <code>String</code>s from
