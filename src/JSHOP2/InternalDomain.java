@@ -636,6 +636,189 @@ public class InternalDomain
       dest.write(buff, 0, buff.length());
     }
   }
+  
+  /** This function generates the Java code necessary to produce this domain at
+   *  run time in the appropriate file.
+   *
+   *  @param varsMaxSize
+   *          the maximum number of variables seen in any variable scope in
+   *          this domain.
+   *  @return
+   *          the generated code. 
+  */
+  public String generateDomainCode(int varsMaxSize)
+  {
+    //-- To hold the String to be written.
+    String s;
+
+    //-- JSHOP2 classes should be imported first.
+    s = "import JSHOP2.*;" + endl + endl;
+
+    //-- Produce the classes that represent the operators.
+    for (int i = 0; i < operators.size(); i++)
+      s += operators.get(i).toCode();
+
+    //-- Produce the classes that represent the methods.
+    for (int i = 0; i < methods.size(); i++)
+      s += methods.get(i).toCode();
+
+    //-- Produce the classes that represent the axioms.
+    for (int i = 0; i < axioms.size(); i++)
+      s += axioms.get(i).toCode();
+
+    //-- Produce the class that represents the domain itself.
+    s += "public class " + name + " extends Domain" + endl + "{" + endl;
+
+    //-- Take care of the user-defined external code calls first by
+    //-- instantiating an  object of that class to do the calculations.
+    for (int i = 0; i < calcs.size(); i++)
+    {
+      String imp = (String)calcs.get(i);
+
+      s += "\tpublic static " + imp + " calculate" + imp +
+           " = new " + imp + "();" + endl + endl;
+    }
+
+    //-- Produce the constructor for the class that represents this domain.
+    s += "\tpublic " + name + "()" + endl + "\t{" + endl;
+
+    //-- To initialize an array of the variable symbols the size of which is
+    //-- equal to the maximum number of variables seen in any scope in the
+    //-- domain. This way, all the variable symbols that have the same index
+    //-- will point to the same thing rather than pointing to duplicate copies.
+    s += "\t\tTermVariable.initialize(" + varsMaxSize + ");" + endl + endl;
+
+    //-- Produce the array that maps constant symbols to integers.
+    s += vectorToCode(constants, "constants");
+    //-- Produce the array that maps compound tasks to integers.
+    s += vectorToCode(compoundTasks, "compoundTasks");
+    //-- Produce the array that maps primitive tasks to integers.
+    s += vectorToCode(primitiveTasks, "primitiveTasks");
+
+    //-- Allocate an array of type 'Method[]'. The size of the array is the
+    //-- number of compound tasks in the domain, and each element of the array
+    //-- represents all the methods that can be used to decompose the
+    //-- corresponding compound task.
+    s += "\t\tmethods = new Method[" + compoundTasks.size() + "][];" + endl
+         + endl;
+
+    //-- For each compound task,
+    for (int i = 0; i < compoundTasks.size(); i++)
+    {
+      //-- To store the number of methods that can decompose this compound
+      //-- task.
+      int j = 0;
+
+      //-- To iterate over the methods.
+      //-- First iterate over the methods to find out how many methods can
+      //-- decompose this compound task.
+      for (InternalMethod m : methods)
+      {
+        if (m.getHead().getHead() == i)
+          j++;
+      }
+
+      //-- Allocate an array of right size.
+      s += "\t\tmethods[" + i + "] = new Method[" + j + "];" + endl;
+
+      j = 0;
+      
+      //-- Next, iterate over the methods again, this time to add the methods
+      //-- that can decompose this compound task to the array.
+      for (InternalMethod m : methods)
+      {
+        if (m.getHead().getHead() == i)
+          s += "\t\tmethods[" + i + "][" + j++ + "] = new Method" + m.getCnt() +
+              "();" + endl;
+      }
+
+      s += endl;
+    }
+
+    //-- Allocate an array of type 'Operator[]'. The size of the array is the
+    //-- number of primitive tasks in the domain, and each element of the array
+    //-- represents all the operators that can be used to achieve the
+    //-- corresponding primitive task.
+    s += endl + "\t\tops = new Operator[" + primitiveTasks.size() + "][];" +
+         endl + endl;
+
+    //-- For each primitive task,
+    for (int i = 0; i < primitiveTasks.size(); i++)
+    {
+      //-- To store the number of operators that can achieve this primitive
+      //-- task.
+      int j = 0;
+
+      //-- To iterate over the operators.
+      //-- First iterate over the operators to find out how many operators can
+      //-- achieve this primitive task.
+      for (InternalOperator o : operators)
+      {
+        if (o.getHead().getHead() == i)
+          j++;
+      }
+
+      //-- Allocate an array of the right size.
+      s += "\t\tops[" + i + "] = new Operator[" + j + "];" + endl;
+
+      j = 0;
+      //-- Next, iterate over the operators again, this time to add the
+      //-- operators that can achieve this primitive task to the array.
+      for (InternalOperator o : operators)
+      {
+        if (o.getHead().getHead() == i)
+          s += "\t\tops[" + i + "][" + j++ + "] = new Operator" + o.getCnt() +
+               "();" + endl;
+      }
+
+      s += endl;
+    }
+
+    //-- Allocate an array of type 'Axiom[]'. The size of the array is the
+    //-- number of constant symbols in the domain, and each element of the
+    //-- array represents all the axioms that can be used to prove predicates
+    //-- which start with the corresponding constant symbol.
+    s += "\t\taxioms = new Axiom[" + constants.size() + "][];" + endl + endl;
+
+    //-- For each constant symbol,
+    for (int i = 0; i < constants.size(); i++)
+    {
+      //-- To store the number of axioms that can prove predicates that start
+      //-- with this constant symbol.
+      int j = 0;
+
+      //-- To iterate over the axioms.
+      //-- First iterate over the axioms to find out how many axioms can be
+      //-- used to prove the predicates that start with this constant symbol.
+      for (InternalAxiom a : axioms) 
+      {
+        if (a.getHead().getHead() == i)
+          j++;
+      }
+
+      //-- Allocate an array of the right size.
+      s += "\t\taxioms[" + i + "] = new Axiom[" + j + "];" + endl;
+
+      j = 0;
+      
+      //-- Next, iterate over the axioms again, this time to add the axioms
+      //-- that can be used to prove the predicates that start with this
+      //-- constant symbol to the array.
+      for (InternalAxiom a : axioms) 
+      {
+        if (a.getHead().getHead() == i)
+          s += "\t\taxioms[" + i + "][" + j++ + "] = new Axiom" + a.getCnt() +
+               "();" + endl;
+      }
+
+      s += endl;
+    }
+
+    //-- Close the constructor and the class.
+    s += "\t}" + endl + "}";
+    
+    return s;
+  }
 
   /** This function returns the number of axioms in this domain.
    *
