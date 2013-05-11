@@ -819,6 +819,141 @@ public class InternalDomain
     
     return s;
   }
+  
+  /** This function writes the Java code necessary to produce these planning
+   *  problems at run time in the appropriate file.
+   *
+   *  @param states
+   *          the list of initial state of the world, one per each planning
+   *          problem.
+   *  @param taskLists
+   *          the list of the task lists to be achieved, one per each planning
+   *          problem.
+   *  @return
+   *          the generated code.
+   */
+  public String generateProblemCode(LinkedList<Vector<Predicate>> states, LinkedList<TaskList> taskLists)
+  {
+    //-- To hold the String to be written.
+    String s;
+
+    //-- Import the appropriate packages.
+    s = "import java.util.LinkedList;" + endl + "import JSHOP2.*;" + endl +
+        endl;
+
+    //-- Define the class that represents this planning problem.
+    s += "public class " + probName + endl + "{" + endl;
+
+    //-- This function defines and allocate the array that will hold the String
+    //-- names of the constant symbols that appeared in the problem description
+    //-- but not in the domain description.
+    s += "\tprivate static String[] defineConstants()" + endl + "\t{" + endl;
+    s += "\t\tString[] problemConstants = new String[" +
+         (constants.size() - constantsSize) + "];" + endl + endl;
+
+    //-- Set the values of elements of that array.
+    for (int i = constantsSize; i < constants.size(); i++)
+      s += "\t\tproblemConstants[" + (i - constantsSize) + "] = \"" +
+           (String)constants.get(i) + "\";" + endl;
+
+    s += endl + "\t\treturn problemConstants;" + endl + "\t}" + endl + endl;
+
+    //-- For each planning problem, initialize the current state of the world
+    //-- to the initial state of the world in the problem description.
+
+    //-- The index of the problem being solved.
+    int problemIdx = 0;
+
+    //-- For each problem,
+    for (Vector<Predicate> state : states)
+    {
+      s += "\tprivate static void createState" + problemIdx++ + "(State s)"
+           + "\t{" + endl;
+
+      
+      //-- For each predicate, in the initial world state of the problem
+      for (Predicate p : state)
+      {
+        //-- Check if the predicate's head appears in the domain too. If not,
+        //-- we don't need to add it to the world state because it doesn't make
+        //-- a difference.
+        if (p.getHead() < constantsSize)
+          s += "\t\ts.add(" + p.toCode() + ");" + endl;
+      }
+
+      s += "\t}" + endl + endl;
+    }
+
+    //-- Define the main function.
+    s += "\tpublic static LinkedList<Plan> getPlans()" + endl + "\t{" + endl;
+    //-- List for all plans to be stored in
+    s += "\t\tLinkedList<Plan> returnedPlans = new LinkedList<Plan>();" + endl;
+    
+    //-- To initialize an array of the constant symbols that we already know
+    //-- exist so that there will be no duplicate copies of those constant
+    //-- symbols.
+    s += "\t\tTermConstant.initialize(" + constants.size() + ");" + endl +
+         endl;
+
+    //-- Instantiate an object of the class that represents the planning
+    //-- domain.
+    s += "\t\tDomain d = new " + name + "();" + endl + endl;
+
+    //-- Call the function that passes this array to the the object that
+    //-- represents the domain.
+    s += "\t\td.setProblemConstants(defineConstants());" + endl + endl;
+
+    //-- Initialize the object that will represent the current state of the
+    //-- world.
+    s += "\t\tState s = new State(" + constantsSize + ", d.getAxioms());" +
+         endl;
+
+    //-- Pass the domain description and the initial state of the world to the
+    //-- JSHOP2 algorithm.
+    s += endl + "\t\tJSHOP2.initialize(d, s);" + endl + endl;
+
+    //-- Define the task list variable and the thread that solves the problems.
+    s += "\t\tTaskList tl;" + endl + "\t\tSolverThread thread;" + endl + endl;
+
+    //-- The index of the problem being solved.
+    problemIdx = 0;
+
+    //-- For each problem,
+    for (TaskList tl : taskLists)
+    {
+      //-- If this is not the first problem, clear the variable that represents
+      //-- the initial world state.
+      if (problemIdx != 0)
+        s += endl + "\t\ts.clear();" + endl;
+
+      //-- Create the world state for this problem.
+      s += "\t\tcreateState" + problemIdx + "(s);" + endl;
+
+      //-- Create the initial task list.
+      s += endl + tl.getInitCode("tl") + endl;
+
+      //-- Define the thread that will solve this planning problem.
+      s += "\t\tthread = new SolverThread(tl, " + planNo + ");" + endl;
+
+      //-- Start the thread that will solve this planning problem.
+      s += "\t\tthread.start();" + endl + endl;
+
+      //-- Wait till thread is done, since JSHOP2's data members are static and
+      //-- can handle only one problem at a time.
+      s += "\t\ttry {" + endl + "\t\t\twhile (thread.isAlive())" + endl;
+      s += "\t\t\t\tThread.sleep(500);" + endl;
+      s += "\t\t} catch (InterruptedException e) {" + endl + "\t\t}" + endl;
+      s += endl + "\t\treturnedPlans.addAll( thread.getPlans() );" + endl + endl;
+
+      problemIdx++;
+    }
+    s += "\t\treturn returnedPlans;" + endl;
+    s += "\t}" + endl + endl + "\tpublic static LinkedList<Predicate> getFirstPlanOps() {";
+    s += endl + "\t\treturn getPlans().getFirst().getOps();" + endl;
+    s += "\t}" + endl + "}";
+    
+    return s;
+  }
 
   /** This function returns the number of axioms in this domain.
    *
