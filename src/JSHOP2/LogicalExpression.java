@@ -11,7 +11,7 @@ public abstract class LogicalExpression extends CompileTimeObject
 {
   /** The number of times function <code>getClassCnt()</code> is called before.
   */
-  private static int classCnt = 0;
+  private static volatile int classCnt = 0;
 
   /** The number of variables in this logical expression, used to determine
    *  the size of bindings when unifiers are calculated.

@@ -19,7 +19,7 @@ public class InternalOperator extends InternalElement
 
   /** The number of objects already instantiated from this class.
   */
-  private static int classCnt = 0;
+  private static volatile int classCnt = 0;
 
   /** The cost of this operator.
   */

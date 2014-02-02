@@ -17,7 +17,7 @@ public class DelAddForAll extends DelAddElement
 
   /** The number of objects already instantiated from this class.
   */
-  private static int classCnt = 0;
+  private static volatile int classCnt = 0;
 
   /** The number of objects already instantiated from this class before this
    *  object was instantiated. This is used as a unique identifier for this

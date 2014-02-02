@@ -32,7 +32,7 @@ public class Predicate extends CompileTimeObject
    * it to discern exactly which task atom is being referenced at every step of the plan
    * finding process.
    */
-  private static int staticID = 0;
+  private static volatile int staticID = 0;
 
   private int ID;
 

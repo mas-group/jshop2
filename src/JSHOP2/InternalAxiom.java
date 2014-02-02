@@ -19,7 +19,7 @@ public class InternalAxiom extends InternalElement
 
   /** The number of objects already instantiated from this class.
   */
-  private static int classCnt = 0;
+  private static volatile int classCnt = 0;
 
   /** A <code>Vector</code> of <code>String</code>s each of which represents
    *  the label of a branch of this axiom.
