@@ -40,15 +40,20 @@ options
   //-- To store the maximum number of the variables seen in any variable scope.
   private int varsMaxSize;
 
+  //-- Provides access to the JSHOP2 core algorithm.
+  private JSHOP2 jshop2;
+
   //-- The function to initialize this object. It must be called right after
   //-- the constructor.
-  public void initialize(JSHOP2Lexer lexerIn, InternalDomain domainIn)
+  public void initialize(JSHOP2Lexer lexerIn, InternalDomain domainIn, JSHOP2 jshop2In)
   {
     lexer = lexerIn;
     domain = domainIn;
 
     vars = new Vector<String>();
     varsMaxSize = 0;
+
+    jshop2 = jshop2In;
   }
 }
 
@@ -211,7 +216,7 @@ method :
       int index = domain.addCompoundTask(mn.getText().toLowerCase());
 
       //-- Create the head of the method.
-      Predicate p = new Predicate(index, vars.size(), new TermList(tn));
+      Predicate p = new Predicate(index, vars.size(), new TermList(tn, jshop2), jshop2);
 
       //-- Create the object that represents the method, and add it to the list
       //-- of the methods in the domain.
@@ -257,7 +262,7 @@ op :
       int index = domain.addPrimitiveTask(on.getText().toLowerCase());
 
       //-- Create the head of the operator.
-      Predicate p = new Predicate(index, vars.size(), new TermList(tn));
+      Predicate p = new Predicate(index, vars.size(), new TermList(tn, jshop2), jshop2);
 
       //-- Create the object that represents the operator, and add it to the
       //-- list of the operators in the domain.
@@ -524,9 +529,9 @@ ta returns [TaskAtom retVal]
         retVal = new TaskAtom(
                               new Predicate(tn,
                                             vars.size(),
-                                            new TermList(param)),
+                                            new TermList(param, jshop2), jshop2),
                               immediate,
-                              isPrimitive);
+                              isPrimitive, jshop2);
       }
   RP
 ;
@@ -728,7 +733,7 @@ la returns [Predicate retVal]
       int index = domain.addConstant(pn.getText().toLowerCase());
 
       //-- Create the logical atom.
-      retVal = new Predicate(index, vars.size(), new TermList(l));
+      retVal = new Predicate(index, vars.size(), new TermList(l, jshop2), jshop2);
     }
   RP
 |
@@ -738,7 +743,7 @@ la returns [Predicate retVal]
       //-- variable at compile time, but will be bound to a predicate at run
       //-- time.
       retVal = new Predicate(vars.indexOf(var.getText().toLowerCase()),
-                             vars.size());
+                             vars.size(), jshop2);
     }
 ;
 
@@ -762,7 +767,7 @@ terml returns [List retVal] :
   )*
   {
     //-- Create the object that represents this term list.
-    retVal = List.MakeList(list);
+    retVal = List.MakeList(list, jshop2);
   }
 ;
 
@@ -798,7 +803,7 @@ term returns [Term retVal]
       int index = domain.addConstant(in.getText().toLowerCase());
 
       //-- Create the object that represents this constant symbol.
-      retVal = new TermConstant(index);
+      retVal = new TermConstant(index, jshop2);
     }
 |
   num:NUM
@@ -812,13 +817,13 @@ term returns [Term retVal]
       DOT tn = term
         {
           //-- Append the current term to the end of the term list.
-          retVal = new TermList(list.append(tn));
+          retVal = new TermList(list.append(tn), jshop2);
         }
     )?
     {
       //-- If retVal is not already created, create it as a list term.
       if (retVal == null)
-        retVal = new TermList(list);
+        retVal = new TermList(list, jshop2);
     }
   RP
 |

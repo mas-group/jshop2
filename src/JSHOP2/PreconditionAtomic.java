@@ -24,20 +24,28 @@ public class PreconditionAtomic extends Precondition
   */
   private Predicate p;
 
+  /** Provides access to the JSHOP2 core algorithm.
+  */
+  private JSHOP2 jshop2;
+
   /** To initialize this atomic logical expression.
    *
    *  @param pIn
    *          the predicate this atomic logical expression represents.
    *  @param unifier
    *          the current unifier.
+   *  @param jshop2In
+   *          provides access to the JSHOP2 core algorithm.
   */
-  public PreconditionAtomic(Predicate pIn, Term[] unifier)
+  public PreconditionAtomic(Predicate pIn, Term[] unifier, JSHOP2 jshop2In)
   {
     //-- An atomic logical expression can be potentially satisfied more than
     //-- once, so the default for the 'isFirstCall' flag is false.
     setFirst(false);
 
     p = pIn.applySubstitution(unifier);
+
+    jshop2 = jshop2In;
   }
 
   /** To bind the assignment logical expression to some binding.
@@ -51,7 +59,7 @@ public class PreconditionAtomic extends Precondition
   */
   protected Term[] nextBindingHelper()
   {
-    return JSHOP2.getState().nextBinding(boundP, e);
+    return jshop2.getState().nextBinding(boundP, e);
   }
 
   /** To reset this atomic logical expression.
@@ -59,7 +67,7 @@ public class PreconditionAtomic extends Precondition
   protected void resetHelper()
   {
     //-- Reset the iterator.
-    e = JSHOP2.getState().iterator(p.getHead());
+    e = jshop2.getState().iterator(p.getHead());
 
     //-- Forget all the subsequent bindings.
     boundP = p;

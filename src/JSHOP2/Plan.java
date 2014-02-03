@@ -22,12 +22,20 @@ public class Plan
   */
   private LinkedList<Predicate> ops;
 
-  /** To initialize the plan to an empty list.
+  /** Provides access to the JSHOP2 core algorithm.
   */
-  public Plan()
+  private JSHOP2 jshop2;
+
+  /** To initialize the plan to an empty list.
+   *
+   * @param jshop2In
+   *         provides access to the JSHOP2 core algorithm.
+  */
+  public Plan(JSHOP2 jshop2In)
   {
     ops = new LinkedList<Predicate>();
     cost = 0;
+    jshop2 = jshop2In;
   }
 
   /** This function is used by objects of this class to clone themselves.
@@ -37,10 +45,11 @@ public class Plan
    *  @param costIn
    *          the cost of the plan.
   */
-  private Plan(LinkedList<Predicate> opsIn, double costIn)
+  private Plan(LinkedList<Predicate> opsIn, double costIn, JSHOP2 jshop2In)
   {
     ops = opsIn;
     cost = costIn;
+    jshop2 = jshop2In;
   }
 
   /** To add an operator instance to the end of the plan.
@@ -64,7 +73,7 @@ public class Plan
   */
   public Object clone()
   {
-    return new Plan(new LinkedList<Predicate>(ops), cost);
+    return new Plan(new LinkedList<Predicate>(ops), cost, jshop2);
   }
 
   /** To get the sequence of operators represented by this object.
@@ -100,7 +109,7 @@ public class Plan
     String retVal = "Plan cost: " + cost + endl + endl;
 
     //-- Get the names of the operators in this domain.
-    String[] primitiveTasks = JSHOP2.getDomain().getPrimitiveTasks();
+    String[] primitiveTasks = jshop2.getDomain().getPrimitiveTasks();
 
     //-- Iterate over the operator instances in the plan and print them.
     for (Predicate p : ops)

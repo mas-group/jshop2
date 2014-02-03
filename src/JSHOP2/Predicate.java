@@ -36,6 +36,10 @@ public class Predicate extends CompileTimeObject
 
   private int ID;
 
+  /** Provides access to the JSHOP2 core algorithm.
+  */
+  private JSHOP2 jshop2;
+
   /** To initialize this predicate.
    *
    *  @param headIn
@@ -44,8 +48,10 @@ public class Predicate extends CompileTimeObject
    *          number of the variables of the predicate.
    *  @param paramIn
    *          the argument list of the predicate.
+   *  @param jshop2In
+   *          provides access to the JSHOP2 core algorithm.
   */
-  public Predicate(int headIn, int varCountIn, Term paramIn)
+  public Predicate(int headIn, int varCountIn, Term paramIn, JSHOP2 jshop2In)
   {
     head = headIn;
     varCount = varCountIn;
@@ -54,6 +60,8 @@ public class Predicate extends CompileTimeObject
     //-- This is a real predicate, so set 'varIdx' to -1.
     varIdx = -1;
     ID = staticID++;
+
+    jshop2 = jshop2In;
   }
 
   /** To initialize this predicate when it is not a real predicate but a
@@ -64,13 +72,15 @@ public class Predicate extends CompileTimeObject
    *  @param varCountIn
    *          number of the variables of the predicate.
   */
-  public Predicate(int varIdxIn, int varCountIn)
+  public Predicate(int varIdxIn, int varCountIn, JSHOP2 jshop2In)
   {
     head = -1;
     varCount = varCountIn;
     param = TermList.NIL;
 
     varIdx = varIdxIn;
+
+    jshop2 = jshop2In;
   }
 
   /** To apply a binding to this predicate.
@@ -96,7 +106,7 @@ public class Predicate extends CompileTimeObject
     }
 
     //-- Apply the binding and return the result.
-    return new Predicate(head, varCount, param.bind(bindings));
+    return new Predicate(head, varCount, param.bind(bindings), jshop2);
   }
 
   /** Whether or not the argument list of another predicate is equal to the
@@ -236,9 +246,9 @@ public class Predicate extends CompileTimeObject
   public String toCode()
   {
     if (isVar())
-      return "new Predicate(" + varIdx + ", " + varCount + ")";
+      return "new Predicate(" + varIdx + ", " + varCount + ", jshop2)";
 
-    return "new Predicate(" + head + ", " + varCount + ", " + param.toCode() + ")";
+    return "new Predicate(" + head + ", " + varCount + ", " + param.toCode() + ", jshop2)";
   }
 
   /** This function returns a printable <code>String</code> representation of
@@ -258,7 +268,7 @@ public class Predicate extends CompileTimeObject
 
     //-- Find out what the String representation of the head of this predicate
     //-- is.
-    String s = "(" + JSHOP2.getDomain().getConstant(head);
+    String s = "(" + jshop2.getDomain().getConstant(head);
 
     //-- If the argument list is a list term (which it should be usually):
     if (param instanceof TermList)

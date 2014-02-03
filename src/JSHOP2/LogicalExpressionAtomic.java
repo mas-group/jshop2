@@ -53,6 +53,6 @@ public class LogicalExpressionAtomic extends LogicalExpression
   */
   public String toCode()
   {
-    return "new PreconditionAtomic(" + logicalAtom.toCode() + ", unifier)";
+    return "new PreconditionAtomic(" + logicalAtom.toCode() + ", unifier, jshop2)";
   }
 }

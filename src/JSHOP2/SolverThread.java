@@ -26,17 +26,24 @@ public class SolverThread extends Thread
   */
   private TaskList tl;
 
+  /** Provides access to the JSHOP2 core algorithm.
+  */
+  private JSHOP2 jshop2;
+
   /** To initialize this thread.
    *
    *  @param tlIn
    *          the task list to be achieved by this thread.
    *  @param planNoIn
    *          the maximum number of plans allowed.
+   *  @param jshop2In
+   *          provides access to the JSHOP2 core algorithm.
   */
-  public SolverThread(TaskList tlIn, int planNoIn)
+  public SolverThread(TaskList tlIn, int planNoIn, JSHOP2 jshop2In)
   {
     tl = tlIn;
     planNo = planNoIn;
+    jshop2 = jshop2In;
   }
 
   /** To return the plans found by this thread. This function should be called
@@ -55,7 +62,7 @@ public class SolverThread extends Thread
   public void run()
   {
     //-- Solve the planning problem.
-    plans = JSHOP2.findPlans(tl, planNo);
+    plans = jshop2.findPlans(tl, planNo);
   }
 }
 

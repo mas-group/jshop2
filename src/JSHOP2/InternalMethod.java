@@ -86,12 +86,22 @@ public class InternalMethod extends InternalElement
     //-- 'getCnt()' to make the name of this class unique.
     s += "class Method" + getCnt() + " extends Method" + endl + "{" + endl;
 
+    //-- Provides access to the JSHOP2 core algorithm.
+    s += "\tprivate JSHOP2 jshop2;" + endl;
+
     //-- The constructor of the class.
-    s += "\tpublic Method" + getCnt() + "()" + endl + "\t{" + endl;
+    s += "\tpublic Method" + getCnt() + "(JSHOP2 jshop2)" + endl + "\t{" + endl;
 
     //-- Call the constructor of the base class (class 'Method') with the code
     //-- that produces the head of this method.
     s += "\t\tsuper(" + getHead().toCode() + ");" + endl;
+
+    //-- Assign the parameters to instance variables so that they can be
+    //-- accessed in following methods. The name of the parameter and the name
+    //-- of the instance variable must be the same, since some code accesses
+    //-- these variables from the constructor while other code accesses it from
+    //-- other methods.
+    s += "\t\tthis.jshop2 = jshop2;" + endl;
 
     //-- Allocate the array to keep the possible task lists that represent
     //-- possible decompositions of this method.

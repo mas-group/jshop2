@@ -21,14 +21,21 @@ public class TermConstant extends Term
   */
   private int index;
 
+  /** Provides access to the JSHOP2 core algorithm.
+  */
+  private JSHOP2 jshop2;
+
   /** To initialize this constant symbol.
    *
    *  @param indexIn
    *          the integer associated with this constant symbol.
+   *  @param jshop2In
+   *          provides access to the JSHOP2 core algorithm.
   */
-  public TermConstant(int indexIn)
+  public TermConstant(int indexIn, JSHOP2 jshop2In)
   {
     index = indexIn;
+    jshop2 = jshop2In;
   }
 
   /** Since this term is a constant symbol, binding will not change it,
@@ -90,12 +97,12 @@ public class TermConstant extends Term
    *  @param size
    *          the number of existing constant symbols.
   */
-  public static void initialize(int size)
+  public static void initialize(int size, JSHOP2 jshop2)
   {
     constants = new TermConstant[size];
 
     for (int i = 0; i < size; i++)
-      constants[i] = new TermConstant(i);
+      constants[i] = new TermConstant(i, jshop2);
   }
 
   /** This function always returns <code>true</code> because a constant symbol
@@ -119,6 +126,6 @@ public class TermConstant extends Term
   */
   public String toString()
   {
-    return JSHOP2.getDomain().getConstant(index);
+    return jshop2.getDomain().getConstant(index);
   }
 }

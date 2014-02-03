@@ -15,16 +15,23 @@ public class TermList extends Term
 
   /** The <code>NIL</code> term.
   */
-  public static TermList NIL = new TermList(null);
+  public static TermList NIL = new TermList(null, null);
+
+  /** Provides access to the JSHOP2 core algorithm.
+  */
+  private JSHOP2 jshop2;
 
   /** To initialize this list term.
    *
    *  @param listIn
    *          the list this term represents.
+   *  @param jshop2In
+   *          provides access to the JSHOP2 core algorithm.
   */
-  public TermList(List listIn)
+  public TermList(List listIn, JSHOP2 jshop2In)
   {
     list = listIn;
+    jshop2 = jshop2In;
   }
 
   /** To initialize this list term.
@@ -33,10 +40,13 @@ public class TermList extends Term
    *          the head of the list this term represents.
    *  @param tailIn
    *          the tail of the list this term represents.
+   *  @param jshop2In
+   *          provides access to the JSHOP2 core algorithm.
   */
-  public TermList(Term headIn, Term tailIn)
+  public TermList(Term headIn, Term tailIn, JSHOP2 jshop2In)
   {
     list = new List(headIn, tailIn);
+    jshop2 = jshop2In;
   }
 
   /** To apply a given binding to the list this term represents.
@@ -44,7 +54,7 @@ public class TermList extends Term
   public Term bind(Term[] binding)
   {
     if (list != null)
-      return new TermList(list.bindList(binding));
+      return new TermList(list.bindList(binding), jshop2);
     else
       return NIL;
   }
@@ -115,7 +125,7 @@ public class TermList extends Term
       return "TermList.NIL";
 
     return "new TermList(" + list.getHead().toCode() + ", " +
-           list.getTail().toCode() + ")";
+           list.getTail().toCode() + ", jshop2)";
   }
 
   /** This function converts this list term to a predicate.
@@ -128,7 +138,7 @@ public class TermList extends Term
   public Predicate toPredicate(int varCount)
   {
     return new Predicate(((TermConstant)list.getHead()).getIndex(), varCount,
-                         list.getTail());
+                         list.getTail(), jshop2);
   }
 
   /** This function is used to print this list term.

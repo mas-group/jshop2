@@ -30,6 +30,10 @@ public class State
   */
   private Vector<NumberedPredicate>[] protections;
 
+  /** Provides access to the JSHOP2 core algorithm.
+  */
+  private JSHOP2 jshop2;
+
   /** To initialize the state of the world.
    *
    *  @param size
@@ -39,8 +43,10 @@ public class State
    *          the axioms in the domain description as a two-dimensional array.
    *          The array is indexed first by the head of the predicates each
    *          axiom can prove and second by the axioms themselves.
+   *  @param jshop2In
+   *          provides access to the JSHOP2 core algorithm.
   */
-  public State(int size, Axiom[][] axiomsIn)
+  public State(int size, Axiom[][] axiomsIn, JSHOP2 jshop2In)
   {
     //-- Initialize the arrays that represent the atoms and protections in the
     //-- current state of the world.
@@ -55,6 +61,8 @@ public class State
     }
 
     axioms = axiomsIn;
+
+    jshop2 = jshop2In;
   }
 
   /** To add a predicate to the current state of the world.
@@ -360,7 +368,7 @@ public class State
     {
       for (Term t : atoms[i]) 
       {
-        (new Predicate(i, 0, t)).print();
+        (new Predicate(i, 0, t, jshop2)).print();
       }
 
       System.out.println();
@@ -383,7 +391,7 @@ public class State
     {
       for (Term t : atoms[i]) 
       {
-        retval.add((new Predicate(i, 0, t)).toString());
+        retval.add((new Predicate(i, 0, t, jshop2)).toString());
       }
     }
     return retval;

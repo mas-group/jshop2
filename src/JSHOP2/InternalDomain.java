@@ -92,7 +92,7 @@ public class InternalDomain
    *          has requested from this object.
    *  @throws IOException
   */
-  public InternalDomain(InputStream inputStream, int planNoIn) throws IOException
+  public InternalDomain(InputStream inputStream, int planNoIn, JSHOP2 jshop2) throws IOException
   {
     planNo = planNoIn;
 
@@ -111,7 +111,7 @@ public class InternalDomain
     //-- Initialize the lexer and the parser associated with this object.
     JSHOP2Lexer lexer = new JSHOP2Lexer(inputStream);
     parser = new JSHOP2Parser(lexer);
-    parser.initialize(lexer, this);
+    parser.initialize(lexer, this, jshop2);
 
     primitiveTasks = new Vector<String>();
   }
@@ -400,7 +400,7 @@ public class InternalDomain
     }
 
     //-- Produce the constructor for the class that represents this domain.
-    s += "\tpublic " + name + "()" + endl + "\t{" + endl;
+    s += "\tpublic " + name + "(JSHOP2 jshop2)" + endl + "\t{" + endl;
 
     //-- To initialize an array of the variable symbols the size of which is
     //-- equal to the maximum number of variables seen in any scope in the
@@ -449,7 +449,7 @@ public class InternalDomain
       {
         if (m.getHead().getHead() == i)
           s += "\t\tmethods[" + i + "][" + j++ + "] = new Method" + m.getCnt() +
-              "();" + endl;
+              "(jshop2);" + endl;
       }
 
       s += endl;
@@ -488,7 +488,7 @@ public class InternalDomain
       {
         if (o.getHead().getHead() == i)
           s += "\t\tops[" + i + "][" + j++ + "] = new Operator" + o.getCnt() +
-               "();" + endl;
+               "(jshop2);" + endl;
       }
 
       s += endl;
@@ -528,7 +528,7 @@ public class InternalDomain
       {
         if (a.getHead().getHead() == i)
           s += "\t\taxioms[" + i + "][" + j++ + "] = new Axiom" + a.getCnt() +
-               "();" + endl;
+               "(jshop2);" + endl;
       }
 
       s += endl;
@@ -587,7 +587,7 @@ public class InternalDomain
     //-- For each problem,
     for (Vector<Predicate> state : states)
     {
-      s += "\tprivate static void createState" + problemIdx++ + "(State s)"
+      s += "\tprivate static void createState" + problemIdx++ + "(State s, JSHOP2 jshop2)"
            + "\t{" + endl;
 
       
@@ -605,19 +605,19 @@ public class InternalDomain
     }
 
     //-- Define the main function.
-    s += "\tpublic static LinkedList<Plan> getPlans()" + endl + "\t{" + endl;
+    s += "\tpublic static LinkedList<Plan> getPlans(JSHOP2 jshop2)" + endl + "\t{" + endl;
     //-- List for all plans to be stored in
     s += "\t\tLinkedList<Plan> returnedPlans = new LinkedList<Plan>();" + endl;
     
     //-- To initialize an array of the constant symbols that we already know
     //-- exist so that there will be no duplicate copies of those constant
     //-- symbols.
-    s += "\t\tTermConstant.initialize(" + constants.size() + ");" + endl +
+    s += "\t\t\t\tTermConstant.initialize(" + constants.size() + ", jshop2);" + endl +
          endl;
 
     //-- Instantiate an object of the class that represents the planning
     //-- domain.
-    s += "\t\tDomain d = new " + name + "();" + endl + endl;
+    s += "\t\tDomain d = new " + name + "(jshop2);" + endl + endl;
 
     //-- Call the function that passes this array to the the object that
     //-- represents the domain.
@@ -625,12 +625,12 @@ public class InternalDomain
 
     //-- Initialize the object that will represent the current state of the
     //-- world.
-    s += "\t\tState s = new State(" + constantsSize + ", d.getAxioms());" +
+    s += "\t\tState s = new State(" + constantsSize + ", d.getAxioms(), jshop2);" +
          endl;
 
     //-- Pass the domain description and the initial state of the world to the
     //-- JSHOP2 algorithm.
-    s += endl + "\t\tJSHOP2.initialize(d, s);" + endl + endl;
+    s += endl + "\t\tjshop2.initialize(d, s);" + endl + endl;
 
     //-- Define the task list variable and the thread that solves the problems.
     s += "\t\tTaskList tl;" + endl + "\t\tSolverThread thread;" + endl + endl;
@@ -647,13 +647,13 @@ public class InternalDomain
         s += endl + "\t\ts.clear();" + endl;
 
       //-- Create the world state for this problem.
-      s += "\t\tcreateState" + problemIdx + "(s);" + endl;
+      s += "\t\tcreateState" + problemIdx + "(s, jshop2);" + endl;
 
       //-- Create the initial task list.
       s += endl + tl.getInitCode("tl") + endl;
 
       //-- Define the thread that will solve this planning problem.
-      s += "\t\tthread = new SolverThread(tl, " + planNo + ");" + endl;
+      s += "\t\tthread = new SolverThread(tl, " + planNo + ", jshop2);" + endl;
 
       //-- Start the thread that will solve this planning problem.
       s += "\t\tthread.start();" + endl + endl;
@@ -668,8 +668,8 @@ public class InternalDomain
       problemIdx++;
     }
     s += "\t\treturn returnedPlans;" + endl;
-    s += "\t}" + endl + endl + "\tpublic static LinkedList<Predicate> getFirstPlanOps() {";
-    s += endl + "\t\treturn getPlans().getFirst().getOps();" + endl;
+    s += "\t}" + endl + endl + "\tpublic static LinkedList<Predicate> getFirstPlanOps(JSHOP2 jshop2) {";
+    s += endl + "\t\treturn getPlans(jshop2).getFirst().getOps();" + endl;
     s += "\t}" + endl + "}";
     
     return s;
@@ -775,12 +775,14 @@ public class InternalDomain
       System.exit(1);
     }
 
+    JSHOP2 jshop2 = new JSHOP2();
+
     //-- If this is a planning problem, call the 'command' rule in the parser.
     if (args.length == 2)
-      (new InternalDomain(new FileInputStream(new File(args[1])), planNo)).parser.command();
+      (new InternalDomain(new FileInputStream(new File(args[1])), planNo, jshop2)).parser.command();
     //-- If this is a planning domain, call the 'domain' rule in the parser.
     else
-      (new InternalDomain(new FileInputStream(new File(args[0])), -1)).parser.domain();
+      (new InternalDomain(new FileInputStream(new File(args[0])), -1, jshop2)).parser.domain();
   }
 
   /** This function reads a <code>Vector</code> of <code>String</code>s from

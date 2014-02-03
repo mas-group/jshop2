@@ -156,14 +156,14 @@ public class List extends CompileTimeObject
    *          the resulting list.
    *
   */
-  static public List MakeList(LinkedList<Term> listIn)
+  static public List MakeList(LinkedList<Term> listIn, JSHOP2 jshop2In)
   {
     List retVal = null;
 
     //-- Iterate over the linked list, add each element to the head of the
     //-- return value.
     for (Term t : listIn)
-      retVal = new List(t, new TermList(retVal));
+      retVal = new List(t, new TermList(retVal, jshop2In));
 
     return retVal;
   }

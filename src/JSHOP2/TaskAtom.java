@@ -21,6 +21,10 @@ public class TaskAtom extends CompileTimeObject
   */
   private boolean primitive;
 
+  /** Provides access to the JSHOP2 core algorithm.
+  */
+  private JSHOP2 jshop2;
+
   /** To initialize this task atom.
    *
    *  @param headIn
@@ -29,12 +33,16 @@ public class TaskAtom extends CompileTimeObject
    *          whether or not this task atom is marked <code>:immediate</code>.
    *  @param primitiveIn
    *          whether or not this task atom is a primitive one.
+   *  @param jshop2In
+   *          provides access to the JSHOP2 core algorithm.
   */
-  public TaskAtom(Predicate headIn, boolean immediateIn, boolean primitiveIn)
+  public TaskAtom(Predicate headIn, boolean immediateIn, boolean primitiveIn,
+          JSHOP2 jshop2In)
   {
     head = headIn;
     immediate = immediateIn;
     primitive = primitiveIn;
+    jshop2 = jshop2In;
   }
 
   /** To calculate the result of applying a given binding to this task atom.
@@ -46,7 +54,7 @@ public class TaskAtom extends CompileTimeObject
   */
   public TaskAtom bind(Term[] binding)
   {
-    return new TaskAtom(head.applySubstitution(binding), immediate, primitive);
+    return new TaskAtom(head.applySubstitution(binding), immediate, primitive, jshop2);
   }
 
   /** To get the head of this task atom.
@@ -93,7 +101,7 @@ public class TaskAtom extends CompileTimeObject
   public String toCode()
   {
     return "new TaskAtom(" + head.toCode() + ", " + immediate + ", " +
-           primitive + ")";
+           primitive + ", jshop2)";
   }
 
   /** This function is used to produce a printable <code>String</code> showing
@@ -107,9 +115,9 @@ public class TaskAtom extends CompileTimeObject
   {
     String s;
     if (primitive)
-      s = head.toString(JSHOP2.getDomain().primitiveTasks);
+      s = head.toString(jshop2.getDomain().primitiveTasks);
     else
-      s = head.toString(JSHOP2.getDomain().compoundTasks);
+      s = head.toString(jshop2.getDomain().compoundTasks);
 
     if (immediate)
       return "(:immediate " + s.substring(1);

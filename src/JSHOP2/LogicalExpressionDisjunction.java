@@ -62,12 +62,22 @@ public class LogicalExpressionDisjunction extends LogicalExpression
     //-- the current binding.
     s += "{" + endl + "\tPrecondition[] p;" + endl + "\tTerm[] b;" + endl;
 
+    //-- Provides access to the JSHOP2 core algorithm.
+    s += "\tprivate JSHOP2 jshop2;" + endl;
+
     //-- Defining an integer to keep track of which disjunct has already been
     //-- considered.
     s += "\tint whichClause;" + endl + endl;
 
     //-- The constructor of the class.
-    s += "\tpublic Precondition" + cnt + "(Term[] unifier)" + endl + "\t{";
+    s += "\tpublic Precondition" + cnt + "(Term[] unifier, JSHOP2 jshop2)" + endl + "\t{";
+
+    //-- Assign the parameters to instance variables so that they can be
+    //-- accessed in following methods. The name of the parameter and the name
+    //-- of the instance variable must be the same, since some code accesses
+    //-- these variables from the constructor while other code accesses it from
+    //-- other methods.
+    s += endl + "\t\tthis.jshop2 = jshop2;";
 
     //-- Allocate the array of iterators.
     s += endl + "\t\tp = new Precondition[" + le.length + "];" + endl;
@@ -137,7 +147,7 @@ public class LogicalExpressionDisjunction extends LogicalExpression
   */
   public String toCode()
   {
-    return "new Precondition" + cnt + "(unifier)";
+    return "new Precondition" + cnt + "(unifier, jshop2)";
   }
 
 
