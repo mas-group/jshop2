@@ -92,8 +92,11 @@ public class InternalMethod extends InternalElement
     //-- Provides access to the defined constants.
     s += "\tprivate TermConstantList termConstants;" + endl;
 
+    //-- Provides access to the defined variables.
+    s += "\tprivate TermVariableList termVariables;" + endl + endl;
+
     //-- The constructor of the class.
-    s += "\tpublic Method" + getCnt() + "(JSHOP2 jshop2, TermConstantList termConstants)" + endl + "\t{" + endl;
+    s += "\tpublic Method" + getCnt() + "(JSHOP2 jshop2, TermConstantList termConstants, TermVariableList termVariables)" + endl + "\t{" + endl;
 
     //-- Call the constructor of the base class (class 'Method') with the code
     //-- that produces the head of this method.
@@ -106,6 +109,7 @@ public class InternalMethod extends InternalElement
     //-- other methods.
     s += "\t\tthis.jshop2 = jshop2;" + endl;
     s += "\t\tthis.termConstants = termConstants;" + endl;
+    s += "\t\tthis.termVariables = termVariables;" + endl;
 
     //-- Allocate the array to keep the possible task lists that represent
     //-- possible decompositions of this method.

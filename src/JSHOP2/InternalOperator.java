@@ -184,8 +184,11 @@ public class InternalOperator extends InternalElement
     //-- Provides access to the defined constants.
     s += "\tprivate TermConstantList termConstants;" + endl;
 
+  //-- Provides access to the defined variables.
+    s += "\tprivate TermVariableList termVariables;" + endl + endl;
+
     //-- The constructor of the class.
-    s += "\tpublic Operator" + getCnt() + "(JSHOP2 jshop2, TermConstantList termConstants)" + endl + "\t{" + endl;
+    s += "\tpublic Operator" + getCnt() + "(JSHOP2 jshop2, TermConstantList termConstants, TermVariableList termVariables)" + endl + "\t{" + endl;
 
     //-- Call the constructor of the base class (class 'Operator') with the
     //-- code that produces the head of this method.
@@ -199,6 +202,7 @@ public class InternalOperator extends InternalElement
     //-- other methods.
     s += "\t\tthis.jshop2 = jshop2;" + endl;
     s += "\t\tthis.termConstants = termConstants;" + endl;
+    s += "\t\tthis.termVariables = termVariables;" + endl;
 
     //-- Define a variable that will be used in the constructors of the
     //-- 'LogicalExpression's if there are any ForAll elements.

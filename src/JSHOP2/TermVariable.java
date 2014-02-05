@@ -14,14 +14,6 @@ public class TermVariable extends Term
   */
   private int index;
 
-  /** To represent the variable symbols that we know occur in the domain
-   *  description, so that there will be no duplicate copies of those symbols.
-   *  In other words, all variable symbols that represent the same thing in
-   *  different places point to the corresponding element in this array at run
-   *  time.
-  */
-  private static TermVariable[] variables;
-
   /** To initialize this variable symbol.
    *
    *  @param indexIn
@@ -84,35 +76,6 @@ public class TermVariable extends Term
     return index;
   }
 
-  /** To return the correponding existing variable symbol.
-   *
-   *  @param index
-   *          the index of the variable symbol to be returned.
-   *  @return
-   *          the corresponding existing variable symbol.
-  */
-  public static TermVariable getVariable(int index)
-  {
-    return variables[index];
-  }
-
-  /** To initialize an array of variable symbols that we know occur in the
-   *  domain description, so that there will be no duplicate copies of those
-   *  symbols. In other words, all variable symbols that represent the same
-   *  thing in different places point to the corresponding element in this
-   *  array at run time.
-   *
-   *  @param size
-   *          the number of existing variable symbols.
-  */
-  public static void initialize(int size)
-  {
-    variables = new TermVariable[size];
-
-    for (int i = 0; i < size; i++)
-      variables[i] = new TermVariable(i);
-  }
-
   /** This function always returns <code>false</code> because a variable symbol
    *  is never ground by definition.
   */
@@ -126,7 +89,7 @@ public class TermVariable extends Term
   */
   public String toCode()
   {
-    return "TermVariable.getVariable(" + index + ")";
+    return "termVariables.getVariable(" + index + ")";
   }
 
   /** This function is used to print this variable symbol.

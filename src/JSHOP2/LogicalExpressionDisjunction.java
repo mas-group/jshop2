@@ -68,12 +68,15 @@ public class LogicalExpressionDisjunction extends LogicalExpression
     //-- Provides access to the defined constants.
     s += "\tprivate TermConstantList termConstants;" + endl;
 
+    //-- Provides access to the defined variables.
+    s += "\tprivate TermVariableList termVariables;" + endl + endl;
+
     //-- Defining an integer to keep track of which disjunct has already been
     //-- considered.
     s += "\tint whichClause;" + endl + endl;
 
     //-- The constructor of the class.
-    s += "\tpublic Precondition" + cnt + "(Term[] unifier, JSHOP2 jshop2, TermConstantList termConstants)" + endl + "\t{";
+    s += "\tpublic Precondition" + cnt + "(Term[] unifier, JSHOP2 jshop2, TermConstantList termConstants, TermVariableList termVariables)" + endl + "\t{";
 
     //-- Assign the parameters to instance variables so that they can be
     //-- accessed in following methods. The name of the parameter and the name
@@ -82,6 +85,7 @@ public class LogicalExpressionDisjunction extends LogicalExpression
     //-- other methods.
     s += endl + "\t\tthis.jshop2 = jshop2;";
     s += endl + "\t\tthis.termConstants = termConstants;";
+    s += endl + "\t\tthis.termVariables = termVariables;" + endl;
 
     //-- Allocate the array of iterators.
     s += endl + "\t\tp = new Precondition[" + le.length + "];" + endl;
@@ -151,7 +155,7 @@ public class LogicalExpressionDisjunction extends LogicalExpression
   */
   public String toCode()
   {
-    return "new Precondition" + cnt + "(unifier, jshop2, termConstants)";
+    return "new Precondition" + cnt + "(unifier, jshop2, termConstants, termVariables)";
   }
 
 

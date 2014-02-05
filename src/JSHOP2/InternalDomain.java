@@ -406,7 +406,7 @@ public class InternalDomain
     //-- equal to the maximum number of variables seen in any scope in the
     //-- domain. This way, all the variable symbols that have the same index
     //-- will point to the same thing rather than pointing to duplicate copies.
-    s += "\t\tTermVariable.initialize(" + varsMaxSize + ");" + endl + endl;
+    s += "\t\tTermVariableList termVariables = new TermVariableList(" + varsMaxSize + ");" + endl + endl;
 
     //-- Produce the array that maps constant symbols to integers.
     s += vectorToCode(constants, "constants");
@@ -449,7 +449,7 @@ public class InternalDomain
       {
         if (m.getHead().getHead() == i)
           s += "\t\tmethods[" + i + "][" + j++ + "] = new Method" + m.getCnt() +
-              "(jshop2, termConstants);" + endl;
+              "(jshop2, termConstants, termVariables);" + endl;
       }
 
       s += endl;
@@ -488,7 +488,7 @@ public class InternalDomain
       {
         if (o.getHead().getHead() == i)
           s += "\t\tops[" + i + "][" + j++ + "] = new Operator" + o.getCnt() +
-               "(jshop2, termConstants);" + endl;
+               "(jshop2, termConstants, termVariables);" + endl;
       }
 
       s += endl;
@@ -528,7 +528,7 @@ public class InternalDomain
       {
         if (a.getHead().getHead() == i)
           s += "\t\taxioms[" + i + "][" + j++ + "] = new Axiom" + a.getCnt() +
-               "(jshop2, termConstants);" + endl;
+               "(jshop2, termConstants, termVariables);" + endl;
       }
 
       s += endl;
