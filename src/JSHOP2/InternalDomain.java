@@ -400,7 +400,7 @@ public class InternalDomain
     }
 
     //-- Produce the constructor for the class that represents this domain.
-    s += "\tpublic " + name + "(JSHOP2 jshop2)" + endl + "\t{" + endl;
+    s += "\tpublic " + name + "(JSHOP2 jshop2, TermConstantList termConstants)" + endl + "\t{" + endl;
 
     //-- To initialize an array of the variable symbols the size of which is
     //-- equal to the maximum number of variables seen in any scope in the
@@ -449,7 +449,7 @@ public class InternalDomain
       {
         if (m.getHead().getHead() == i)
           s += "\t\tmethods[" + i + "][" + j++ + "] = new Method" + m.getCnt() +
-              "(jshop2);" + endl;
+              "(jshop2, termConstants);" + endl;
       }
 
       s += endl;
@@ -488,7 +488,7 @@ public class InternalDomain
       {
         if (o.getHead().getHead() == i)
           s += "\t\tops[" + i + "][" + j++ + "] = new Operator" + o.getCnt() +
-               "(jshop2);" + endl;
+               "(jshop2, termConstants);" + endl;
       }
 
       s += endl;
@@ -528,7 +528,7 @@ public class InternalDomain
       {
         if (a.getHead().getHead() == i)
           s += "\t\taxioms[" + i + "][" + j++ + "] = new Axiom" + a.getCnt() +
-               "(jshop2);" + endl;
+               "(jshop2, termConstants);" + endl;
       }
 
       s += endl;
@@ -587,7 +587,7 @@ public class InternalDomain
     //-- For each problem,
     for (Vector<Predicate> state : states)
     {
-      s += "\tprivate static void createState" + problemIdx++ + "(State s, JSHOP2 jshop2)"
+      s += "\tprivate static void createState" + problemIdx++ + "(State s, JSHOP2 jshop2, TermConstantList termConstants)"
            + "\t{" + endl;
 
       
@@ -612,12 +612,12 @@ public class InternalDomain
     //-- To initialize an array of the constant symbols that we already know
     //-- exist so that there will be no duplicate copies of those constant
     //-- symbols.
-    s += "\t\t\t\tTermConstant.initialize(" + constants.size() + ", jshop2);" + endl +
+    s += "\t\t\t\tTermConstantList termConstants = new TermConstantList(" + constants.size() + ", jshop2);" + endl +
          endl;
 
     //-- Instantiate an object of the class that represents the planning
     //-- domain.
-    s += "\t\tDomain d = new " + name + "(jshop2);" + endl + endl;
+    s += "\t\tDomain d = new " + name + "(jshop2, termConstants);" + endl + endl;
 
     //-- Call the function that passes this array to the the object that
     //-- represents the domain.
@@ -647,7 +647,7 @@ public class InternalDomain
         s += endl + "\t\ts.clear();" + endl;
 
       //-- Create the world state for this problem.
-      s += "\t\tcreateState" + problemIdx + "(s, jshop2);" + endl;
+      s += "\t\tcreateState" + problemIdx + "(s, jshop2, termConstants);" + endl;
 
       //-- Create the initial task list.
       s += endl + tl.getInitCode("tl") + endl;

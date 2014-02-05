@@ -64,8 +64,11 @@ public class LogicalExpressionConjunction extends LogicalExpression
     //-- Provides access to the JSHOP2 core algorithm.
     s += "\tprivate JSHOP2 jshop2;" + endl;
 
+    //-- Provides access to the defined constants.
+    s += "\tprivate TermConstantList termConstants;" + endl;
+
     //-- The constructor of the class.
-    s += endl+ "\tpublic Precondition" + cnt + "(Term[] unifier, JSHOP2 jshop2)" + endl;
+    s += endl+ "\tpublic Precondition" + cnt + "(Term[] unifier, JSHOP2 jshop2, TermConstantList termConstants)" + endl;
 
     //-- Allocate the array of iterators.
     //-- Set to one more than the length, and the first one will be blank
@@ -79,6 +82,7 @@ public class LogicalExpressionConjunction extends LogicalExpression
     //-- these variables from the constructor while other code accesses it from
     //-- other methods.
     s += "\t\tthis.jshop2 = jshop2;" + endl;
+    s += "\t\tthis.termConstants = termConstants;" + endl;
 
     //-- For each conjunct,
     for (int i = 1; i <= le.length; i++)
@@ -223,6 +227,6 @@ public class LogicalExpressionConjunction extends LogicalExpression
   */
   public String toCode()
   {
-    return "new Precondition" + cnt + "(unifier, jshop2)";
+    return "new Precondition" + cnt + "(unifier, jshop2, termConstants)";
   }
 }

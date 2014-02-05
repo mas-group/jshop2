@@ -71,8 +71,11 @@ public class InternalAxiom extends InternalElement
     //-- Provides access to the JSHOP2 core algorithm.
     s += "\tprivate JSHOP2 jshop2;" + endl;
 
+    //-- Provides access to the defined constants.
+    s += "\tprivate TermConstantList termConstants;" + endl;
+
     //-- The constructor of the class.
-    s += "\tpublic Axiom" + getCnt() + "(JSHOP2 jshop2)" + endl + "\t{" + endl;
+    s += "\tpublic Axiom" + getCnt() + "(JSHOP2 jshop2, TermConstantList termConstants)" + endl + "\t{" + endl;
 
     //-- Call the constructor of the base class (class 'Axiom') with the code
     //-- that produces the head of this axiom, and number of branches of this
@@ -85,6 +88,7 @@ public class InternalAxiom extends InternalElement
     //-- these variables from the constructor while other code accesses it from
     //-- other methods.
     s += "\t\tthis.jshop2 = jshop2;" + endl;
+    s += "\t\tthis.termConstants = termConstants;" + endl;
 
     s += endl + "\t}" + endl + endl;
 
