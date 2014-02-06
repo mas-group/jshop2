@@ -169,12 +169,6 @@ public class JSHOP2
     //-- Call the helper function.
     findPlanHelper(tasks);
 
-    //-- Initialize planStepList within JSHOP2GUI
-    JSHOP2GUI.setPlanStepList(planStepList);
-
-    //-- Initialize numPlans within JSHOP2GUI
-    JSHOP2GUI.setNumPlans(numPlans);
-    
     //-- Inform all observers about the new plan(s).
     for (PlanObserver o: planObservers) {
       //-- Initialize planStepList within the observer.

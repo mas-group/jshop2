@@ -13,7 +13,7 @@ import javax.swing.event.*;
  * @author John Shin
  *
  */
-public class JSHOP2GUI extends JFrame {
+public class JSHOP2GUI extends JFrame implements PlanObserver {
 	private static final long serialVersionUID = 112832006;
 	
 	// The list of plan steps dynamically set by JSHOP2
@@ -91,13 +91,19 @@ public class JSHOP2GUI extends JFrame {
 
 //-----------------------------------------------------------------------------
     /**
-     * The default constructor.  Call this constructor only after the plan step
-     * list has been initialized by <code>setPlanStepList</code> and the the 
-     * number of plans has been set by <code>setNumPlans</code>.  When called
-     * successfully, this constructor will launch the GUI. 
-     * 
+     * The default constructor.
      */
     public JSHOP2GUI() {
+    }
+    
+    /**
+     * Run the GUI to visualize a plan. Call this method only after the plan step
+     * list has been initialized by <code>setPlanStepList</code> and the the 
+     * number of plans has been set by <code>setNumPlans</code>.  When called
+     * successfully, this method will launch the GUI. 
+     * 
+     */
+    public void run() {
     	// Calculate values to center all frames and dialog boxes
     	Toolkit toolkit = Toolkit.getDefaultToolkit();
     	screenSize = toolkit.getScreenSize();    	
@@ -127,7 +133,7 @@ public class JSHOP2GUI extends JFrame {
      * @param inputList - an ArrayList of PlanStepInfo objects that are used to
      * reconstruct the plan finding process
      */
-    public static void setPlanStepList(ArrayList<PlanStepInfo> inputList) {
+    public void setPlanStepList(ArrayList<PlanStepInfo> inputList) {
     	planStepList = inputList;
     }
     
@@ -137,7 +143,7 @@ public class JSHOP2GUI extends JFrame {
      * 
      * @param numPlansIn - an integer representing the total number of plans found
      */
-    public static void setNumPlans(int numPlansIn) {
+    public void setNumPlans(int numPlansIn) {
     	numPlans = numPlansIn;
     }
     
