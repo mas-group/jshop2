@@ -128,6 +128,10 @@ public class JSHOP2
   */
   private int numPlans;
 
+  /** A list of observers which get informed about newly found plans.
+   */
+  private LinkedList<PlanObserver> planObservers = new LinkedList<PlanObserver>();
+
   /** This function finds plan(s) for a given initial task list.
    *
    *  @param tasksIn
@@ -170,6 +174,15 @@ public class JSHOP2
 
     //-- Initialize numPlans within JSHOP2GUI
     JSHOP2GUI.setNumPlans(numPlans);
+    
+    //-- Inform all observers about the new plan(s).
+    for (PlanObserver o: planObservers) {
+      //-- Initialize planStepList within the observer.
+      o.setPlanStepList(planStepList);
+
+      //-- Initialize numPlans within the observer.
+      o.setNumPlans(numPlans);
+    }
 
     //-- Return the found plan(s).
     return plans;
@@ -442,5 +455,15 @@ public class JSHOP2
   {
     domain = domainIn;
     state = stateIn;
+  }
+
+  /** This function registers a new observer which is informed about new plans.
+   *
+   * @param observer
+   *         the observer to be registered.
+   */
+  public void registerPlanObserver(PlanObserver observer)
+  {
+    planObservers.add(observer);
   }
 }
