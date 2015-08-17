@@ -585,6 +585,9 @@ public class InternalDomain
     int problemIdx = 0;
 
     //-- For each problem,
+    int predicateCounter = 0;
+    int helperIdx = 0;
+
     for (Vector<Predicate> state : states)
     {
       s += "\tprivate static void createState" + problemIdx++ + "(State s)"
@@ -594,6 +597,17 @@ public class InternalDomain
       //-- For each predicate, in the initial world state of the problem
       for (Predicate p : state)
       {
+        //-- Java functions are limited to 512kb. To prevent reaching this size
+        //-- we limit the createState functions to 500 lines.
+        if (predicateCounter++ == 500)
+        {
+          s += "\t\thelper_" + helperIdx + "_createState" + (problemIdx - 1) + "(s);" + endl +
+               "\t}" + endl + endl +
+               "\tprivate static void helper_" + helperIdx++ + "_createState" + (problemIdx - 1) + "(State s)" +
+               "\t{" + endl;
+          predicateCounter = 0;
+        }
+
         //-- Check if the predicate's head appears in the domain too. If not,
         //-- we don't need to add it to the world state because it doesn't make
         //-- a difference.
